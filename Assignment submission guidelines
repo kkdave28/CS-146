@@ -1,0 +1,4 @@
+connect to odin
+use the following command to submit assignments.
+/home/cs146/bin/submit -A [assignment number] -f (force submit if required) [filename.txt/filename.c/etc (can be more than 1 file (s)]
+

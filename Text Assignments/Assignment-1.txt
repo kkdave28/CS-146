@@ -1,0 +1,27 @@
+Kush K Dave
+SID# 61699159
+UCNETID kkdave
+CS-146 Assignment -1 Spring 2018
+
+1. My home directory is /home/kkdave. The command I used to find that out is 'pwd' which prints the working directory when I initially logged in. Alternatively, I can use the command 'echo $HOME' to print the home directory when I am working in another directory.
+
+2. My UID is 25914. I used the command 'id -u <username>' where username=kkdave to find my uid.
+
+3. I belong to the group ugrad(gid = 1001) and group openstack_ugrad(gid = 710). I used the command 'id' to see the group names and 'id -G' to see the all the group ids of the group I am a part of.
+
+4. 'kill' character is ctrl+u. It erases the entire line that is typed but not entered in the bash.
+
+5. N0, after removing the x permission bit from the directory, I was unable to create/rename/delete files in that directory. I was unable to cd into it, nor was I able to ls it or ls -l the directory. I used the command "chmod u-x ~/test" to remove the execute permission bit and "chmod u+x ~/test" to set it back again
+
+6. When I made the hardlink to the file and removed the file itself, the file still existed because I could read and write to that file using the harlink(s) I created. The contents of the file weren't actually removed. This is because the file on the disk is not deleted unless and untill all hard links to the file are deleted. Whereas when I created symbolic links to the file and deleted the original file, the other two symbolic links were corrupted and didn't contain the data that the original file contained meaning that the original file that I deleted was purged from the hard disk. This is because symbolic links are shortcuts or pointers to the files. When we delete the symbolic link, only the link pointing to the file is deleted. It the file was deleted, the symbolic links being pointers to that file would point to nothing.
+
+7. Yes I am allowed to "mv" a directory. The command is "mv [PATH TO SOURCE DIRECTORY] [PATH TO DESTINATION DIRECTORY]". When I tried to cp the same directory, it printed "cp: omitting [PATH TO SOURCE FILE]. Then I tried doing "cp -r [PATH TO SOURCE DIRECTORY] [PATH TO DESTINATION DIRECTORY]" which copied every sub-file and sub-folder inside that directory.
+
+8. There are 3 file systems mounted on odin.ics.uci.edu. The command i used is "find /dev/sda* | wc -l".
+
+9. 'ls -l `tty` |grep -o $USER*' is the command I used to print the login name.
+
+10. FFDC = '11111111 11011100'
+    MOVE = '1100101'
+    MUL = '1010001 01011101' 
+
