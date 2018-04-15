@@ -1,1 +1,1 @@
-ls -lS
+find $(pwd) -type f| wc -l

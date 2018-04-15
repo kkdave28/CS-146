@@ -1,0 +1,1 @@
+./whoson.sh | wc -l
