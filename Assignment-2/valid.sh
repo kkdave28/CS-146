@@ -7,4 +7,10 @@ check_if_valid() {
         echo "$1: invalid"
     fi
 }
-check_if_valid "$1"
+
+if [[ "$1" == "" ]]
+then 
+	echo "No Argument Detected. Usage: ./valid.sh <argument>"
+else
+	check_if_valid "$1"
+fi
