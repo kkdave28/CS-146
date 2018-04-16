@@ -1,0 +1,7 @@
+1.  The command 'cat x y > y' would result in unexpected behavior because the file y is open for reading and we are trying to 
+    read from the file and write to the file at the same time in the same operation which will result in the contents of y to be purged
+    and contents of x to be written to y.
+
+2.  The command 'cat x >> x' will try to append the contents of x to x. This is because in the same operation, we have requested the file to open for
+    reading and writing at the same time. This will result in x to be purged, meaning that there is nothing to be written to the stdout and then the previous contents
+    of x will be appended to x itself.
