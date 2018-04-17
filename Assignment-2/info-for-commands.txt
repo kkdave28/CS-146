@@ -1,0 +1,41 @@
+Information/Writeup for all scripts.
+
+1. cx.sh
+-Implementation Details :- Loop using a for loop through all command line arguments using "$@" and chmod +x every arguments
+-Usage :- ./cx.sh <arg-1> <arg-2> <arg-3> ...
+
+2. howmany.sh
+-Implementation Details :- Piping the output of whoson.sh into an array and then printing the length of the array.
+-Usage :- ./howmany.sh
+
+3. lss.sh
+-Implementation Details :- using the command "ls -a -lS" -a flag for all files (hidden included), -l flag for listing all details and -S flag for 
+                           sorting according to decreasing order of size.
+-Usage :- ./lss.sh
+
+4. nf.sh
+-Implementation Details :- Using the command "ls -a" and piping it into "wc -l", -a flag for all files, -l flag for counting number of lines.
+-Usage :- ./nf.sh
+
+5. prargs.sh
+-Implementation Details :- First getting the number of arguments passed using "$#" and storing it in a variable. Then looping over each of them using
+                           'i' as the index variable and "$i" to access each of the positional arguments and printing the same to the terminal.
+-Usage :- ./prargs.sh <arg-1> <arg-2> <arg-3> ...
+
+6. valid.sh
+-Implementation Details :- The function which checks the validity of the bash variable is encapsulated in a function. Before calling the function, a check
+                           is performed to see whether actual argument is passed to the shell or not, if no argument(s) are detected, print an error message
+                           duly explaining the usage of the script, else call the function which simply does a regualar-expression check to determine the validity
+                           of the variable name.
+-Usage :- ./valid.sh <arg>
+
+7. whoson.sh 
+Implementation Details :- This script first obtains the list of ugrads I share the group with using the group 'openstack_ugrad' and passing this as an argument to 
+                          'getent group openstack_ugrad'. The output of this is redirected into an array called 'all_array'. Next, the IDs of the people who are online
+                          are obtained using 'who |awk '{print $1}'| sort -u'. The sort -u in the end eliminates duplicates in case students are logged on to the machine
+                          using multiple terminals. Then the 'all_array' is sorted using the sort command on the array. Finally, loop throught the 'sorted' array and loop 
+                          through the array of people containing all users who are online and if a student's ID in the sorted array matches with a person's ID in the array
+                          of online users, print it to the terminal.
+-Usage :- ./whoson.sh
+
+Note: You may need to set the executable permission bit for one or more of these scripts to make sure that they execute.  

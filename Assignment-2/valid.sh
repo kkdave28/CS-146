@@ -8,7 +8,7 @@ check_if_valid() {
     fi
 }
 
-if [[ "$1" == "" ]]
+if [[ "$#" == 0 ]]
 then 
 	echo "No Argument Detected. Usage: ./valid.sh <argument>"
 else
