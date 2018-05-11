@@ -32,7 +32,7 @@ void process_file(FILE * file)
             }
             printf("%s", buf);
         }
-        for(j=1; j<N; j++)
+        for(j=1; j<N-1; j++)
         {
             getline(&buf, &bytes_read, file);
         }
