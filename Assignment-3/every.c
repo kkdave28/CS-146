@@ -2,9 +2,6 @@
 #include <stdlib.h>
 #include <string.h>
 #define DEBUG 0
-#define OK       0
-#define NO_INPUT 1
-#define TOO_LONG 2
 static int N = 0;
 static int M = 0;
 static char * buf = NULL;
