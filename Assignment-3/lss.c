@@ -9,6 +9,7 @@
 #include <pwd.h>
 #include <bsd/string.h>
 #include <time.h>
+int get_count(){}
 int main(int argc, char* argv[])
 {
     if(argc < 2)
@@ -35,13 +36,30 @@ int main(int argc, char* argv[])
     }
     while((myfile = readdir(mydir)) != NULL)
     {
-        strmode(mystat.st_mode, modebuf);
+        
     
         sprintf(buf, "%s/%s", argv[1], myfile->d_name);
-        stat(buf, &mystat); // check for errors...
-        grp_query = getgrgid(mystat.st_gid); // check for errors.
-        usr_query = getpwuid(mystat.st_uid); // check for errors.
-        time_query = localtime(&mystat.st_atime); // check for errors.
+        if(stat(buf, &mystat) == -1)
+        {
+            fprintf(stderr, "%s: %s\n", "lss", strerror(errno));
+            exit(EXIT_FAILURE);
+        } // check for errors...
+        strmode(mystat.st_mode, modebuf);
+        if((grp_query = getgrgid(mystat.st_gid)) == NULL)
+        {
+            fprintf(stderr, "%s: %s\n", "lss", strerror(errno));
+            exit(EXIT_FAILURE);
+        } // check for errors.
+        if((usr_query = getpwuid(mystat.st_uid)) == NULL)
+        {
+            fprintf(stderr, "%s: %s\n", "lss", strerror(errno));
+            exit(EXIT_FAILURE);
+        } // check for errors.
+        if((time_query = localtime(&mystat.st_atime)) == NULL)
+        {
+            fprintf(stderr, "%s: %s\n", "lss", strerror(errno));
+            exit(EXIT_FAILURE);
+        } // check for errors.
         strftime(timebuf, 20, "%b %d %H:%M", time_query);
         printf("%-s\t",modebuf);
         printf("%-ld\t", mystat.st_nlink);
@@ -52,5 +70,9 @@ int main(int argc, char* argv[])
         printf(" %-s\t\n", myfile->d_name);
         
     }
-    closedir(mydir);
+    if(closedir(mydir) == -1)
+    {
+        fprintf(stderr, "%s: %s\n", "lss", strerror(errno));
+        exit(EXIT_FAILURE);
+    }
 }

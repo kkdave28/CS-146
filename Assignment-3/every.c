@@ -1,18 +1,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <errno.h>
 #define DEBUG 0
 static int N = 0;
 static int M = 0;
-static char * buf = NULL;
 
-void cleanup()
-{
-    free(buf);
-}
 void process_file(FILE * file)
 {
     int i,j;
+    char * buf = NULL;
     size_t bytes_read = 0;
     size_t actual_bytes_read = 0;
     while((actual_bytes_read = getline(&buf, &bytes_read, file))!= -1)
@@ -20,13 +17,7 @@ void process_file(FILE * file)
         printf("%s", buf);
         for(i=1; i< M; i++)
         {
-            if((actual_bytes_read = getline(&buf, &bytes_read, file))== -1)
-            {
-                #if DEBUG
-                printf("Reached EOF\n");
-                #endif
-                exit(0);
-            }
+            getline(&buf, &bytes_read, file);
             printf("%s", buf);
         }
         for(j=1; j<N-1; j++)
@@ -34,24 +25,7 @@ void process_file(FILE * file)
             getline(&buf, &bytes_read, file);
         }
     }
-    // char buf[1024];
-    // int i,j;
-    // while(customgetLine(buf, 1024, file)!= NO_INPUT)
-    // {
-    //     printf("%s\n", buf);
-    //     for(i=1; i< M; i++)
-    //     {
-    //         if(customgetLine(buf, 1024, file) == NO_INPUT)
-    //         {
-    //             exit(0);
-    //         }
-    //         printf("%s\n", buf);
-    //     }
-    //     for(j=0; j< N;j++)
-    //     {
-    //         customgetLine(buf, 1024, file);
-    //     }
-    // }
+    free(buf);
 }
 void Validate_And_Extract(int argc, char * argv[])
 {
@@ -81,12 +55,18 @@ void Validate_And_Extract(int argc, char * argv[])
 }
 int main(int argc, char *argv[])
 {
-    atexit(cleanup);
+ //   atexit(cleanup);
     Validate_And_Extract(argc, argv);
     int i;
+    FILE * file;
     for(i=2; i< argc; i++)
     {
-        FILE * file = fopen(argv[i], "r");
+        if((file = fopen(argv[i], "r")) == NULL)
+        {
+            fprintf(stderr,"%s [file: %s]: %s\n", "every", argv[i], strerror(errno));
+            exit(EXIT_FAILURE);
+
+        }
         process_file(file);
 
     }
