@@ -11,6 +11,7 @@
 static char buf[512];
 static char buf2[512];
 static char directory_name[512];
+//implement getopt and be awesome
 void print_permissions(struct stat fileStat)
 {
     
@@ -117,7 +118,8 @@ int main(int argc, char *argv[])
         if((dir = opendir(argv[i])) == NULL) // IF the directory doesn't exist or cannot be opened.
         {
             perror("lss");
-            exit(EXIT_FAILURE);
+            continue;
+            //exit(EXIT_FAILURE);
         }
         file_count = 0;
         while((entry = readdir(dir)) != NULL)
