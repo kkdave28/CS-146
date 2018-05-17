@@ -1,7 +1,7 @@
 every:
 	gcc every.c -o every
 lss:
-	gcc lss-prototype.c -lbsd -o lss-c
+	gcc lss-prototype.c -o lss-c
 clean:
 	rm -f a.out
 	rm -f core.*

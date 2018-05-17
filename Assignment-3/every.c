@@ -20,6 +20,7 @@ void process_file(FILE * file)
             getline(&buf, &bytes_read, file);
             printf("%s", buf);
         }
+            //printf("%s", buf);
         for(j=1; j<N-1; j++)
         {
             getline(&buf, &bytes_read, file);
@@ -45,11 +46,20 @@ void Validate_And_Extract(int argc, char * argv[])
     validity = strtok(NULL, ",");
     if(validity == NULL)
     {
+        #if DEBUG
         printf("M is not detected...\n");
+        #endif
+        M=1;
     }
     else
     {
         M = atoi(validity);
+    }
+    if(M> N)
+    {
+        printf("M cannot be gretaer than N\nExiting...\n");
+        printf("Usage: ./every [-N,M] [File-1] [File-2] ....\n");
+        exit(EXIT_FAILURE);
     }
 
 }
