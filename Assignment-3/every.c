@@ -6,9 +6,9 @@
 #define DEBUG 0
 //Enviornment variable checking implemented
 // use stdin of not given files
-static int N = 0;
-static int M = 0;
-static int start = 0;
+static int N = 1;
+static int M = 1;
+static int start = 1;
 void process_file(FILE * file)
 {
     int i,j;
@@ -18,19 +18,19 @@ void process_file(FILE * file)
     
     while(!feof(file))
     {
-        for(i=0; i< M; i++)
+        for(i=0; i<M; i++)
         {
             getline(&buf, &bytes_read, file);
             printf("%s", buf);
         }
             //printf("%s", buf);
-        if( N >1)
-        {
-            for(j=0; j<N; j++)
+ 
+        
+            for(j=0; j<N-M; j++)
             {
                 getline(&buf, &bytes_read, file);
             }
-        }
+        
     }
     free(buf);
 }
@@ -65,12 +65,7 @@ void Validate_And_Extract(int argc, char * argv[])
         {
             M = atoi(validity);
         }
-        if(M> N)
-        {
-            printf("M cannot be gretaer than N\nExiting...\n");
-            printf("Usage: ./every [-N,M] [File-1] [File-2] ....\n");
-            exit(EXIT_FAILURE);
-        }
+
         start = 2;
     }
     else
@@ -84,15 +79,7 @@ void Validate_And_Extract(int argc, char * argv[])
             #endif
             N = atoi(every)*-1;
             M = atoi(take);
-            start = 1;
-
             return;
-        }
-        else
-        {
-            N =1;
-            M = 1;   
-            start = 1;
         }
     }
 
@@ -101,6 +88,12 @@ int main(int argc, char *argv[])
 {
  //   atexit(cleanup);
     Validate_And_Extract(argc, argv);
+    if(M> N)
+    {
+        printf("M cannot be gretaer than N\nExiting...\n");
+        printf("Usage: ./every [-N,M] [File-1] [File-2] ....\n");
+        exit(EXIT_FAILURE);
+    }
     
     int i;
     FILE * file;
