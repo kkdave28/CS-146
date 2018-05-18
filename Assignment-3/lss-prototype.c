@@ -92,6 +92,12 @@ int sort_by_size(const void * const X, const void * const Y)
 }
 int main(int argc, char *argv[])
 {
+
+    for(int x = 0; x< argc; x++)
+    {
+        int v =0;
+        //check if a directory name is passed to 
+    }
     if(argc < 2)
     {
         fprintf(stderr, "%s: %s\n", "lss", "Too few arguments to the program");

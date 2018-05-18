@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <dirent.h>
+#include <string.h>
 #include <errno.h>
 #include <grp.h>
 #include <pwd.h>
@@ -11,6 +12,9 @@
 static char buf[512];
 static char buf2[512];
 static char directory_name[512];
+int A_OPT = 0;
+int a_OPT = 0;
+int L_OPT = 0;
 void print_permissions(struct stat fileStat)
 {
     
@@ -69,6 +73,70 @@ void print_permissions(struct stat fileStat)
     
     
 }
+void print_file_info(struct stat mystat, char *filename)
+{
+    
+    char timebuf[512];
+    char file_link_buf[512];
+    int link_count = 0;
+    struct group* grp_query;
+    struct passwd* usr_query;
+    struct tm* time_query;
+    if((grp_query = getgrgid(mystat.st_gid)) == NULL)
+    {
+        perror("lss");
+        exit(EXIT_FAILURE);
+    } // check for errors.
+    if((usr_query = getpwuid(mystat.st_uid)) == NULL)
+    {
+        perror("lss");
+        exit(EXIT_FAILURE);
+    } // check for errors.
+    if((time_query = localtime(&mystat.st_atime)) == NULL)
+    {
+        perror("lss");
+        exit(EXIT_FAILURE);
+    } // check for errors.
+    strftime(timebuf, 20, "%b %d %H:%M", time_query);
+    print_permissions(mystat);
+    if( printf("%-ld\t", mystat.st_nlink) < 0)
+    {
+        perror("lss");
+        exit(EXIT_FAILURE);
+    }
+    if( printf("%-s\t", usr_query->pw_name) < 0)
+    {
+        perror("lss");
+        exit(EXIT_FAILURE);
+    }
+    if( printf("%-s\t", grp_query->gr_name) < 0)
+    {
+        perror("lss");
+        exit(EXIT_FAILURE);
+    }
+    if( printf("%-ld\t",mystat.st_size) < 0)
+    {
+        perror("lss");
+        exit(EXIT_FAILURE);
+    }
+    if( printf("%s\t", timebuf) < 0)
+    {
+        perror("lss");
+        exit(EXIT_FAILURE);
+    }
+
+    if((link_count = readlink(filename, file_link_buf, sizeof(file_link_buf))) >=0)
+    {
+        file_link_buf[link_count] = '\0';
+        printf("%s -> %s\n", filename,file_link_buf);
+    }
+    else
+    {
+        printf("%s\n", filename);
+    }
+    
+    
+}
 int sort_by_size(const void * const X, const void * const Y)
 {
     struct stat stat1;
@@ -76,18 +144,37 @@ int sort_by_size(const void * const X, const void * const Y)
     sprintf(buf, "%s/%s", directory_name, (*(struct dirent **) X)->d_name);
     sprintf(buf2, "%s/%s", directory_name, (*(struct dirent **) Y)->d_name);
     //(*(struct dirent **) X)->d_name;        
-    if(stat(buf, &stat1) == -1)
+    if(lstat(buf, &stat1) == -1)
     {
         perror("lss");
         exit(EXIT_FAILURE);
     }
-    if(stat(buf2, &stat2) == -1)
+    if(lstat(buf2, &stat2) == -1)
     {
         perror("lss");
         exit(EXIT_FAILURE);
     }
     return (stat1.st_size < stat2.st_size);
     
+}
+void set_options(int argc, char* argv[])
+{
+    int opt;
+    while ((opt = getopt(argc, argv, "AaL")) != -1)
+    {
+        switch(opt)
+        {
+            case 'A':
+                A_OPT = 1;
+                break;
+            case 'a':
+                a_OPT = 1;
+                break;
+            case 'L':
+                L_OPT = 1;
+                break;
+        }
+    }
 }
 int main(int argc, char *argv[])
 {
@@ -97,7 +184,8 @@ int main(int argc, char *argv[])
         fprintf(stderr, "%s: %s\n", "Usage", "./lss-c [DIR]");
         exit(EXIT_FAILURE);
     }
-    //close(1);
+    set_options(argc, argv);
+    //printf("A: %d, a: %d, L: %d\n", A_OPT, a_OPT, L_OPT);
     struct dirent * entry;
     struct dirent ** file_list;
     DIR * dir;
@@ -116,8 +204,16 @@ int main(int argc, char *argv[])
 
         if((dir = opendir(argv[i])) == NULL) // IF the directory doesn't exist or cannot be opened.
         {
-            perror("lss");
-            exit(EXIT_FAILURE);
+            if(lstat(argv[i], &mystat) != -1)
+            {
+                print_file_info(mystat, argv[i]);
+                continue;
+            }
+            else
+            {
+                //perror("lss");
+                continue;
+            }
         }
         file_count = 0;
         while((entry = readdir(dir)) != NULL)
@@ -148,66 +244,39 @@ int main(int argc, char *argv[])
         }
         for(j=0; j< file_count; j++)
         {
-
             sprintf(findbuf, "%s/%s", argv[i], file_list[j]->d_name);
-
-            if(stat(findbuf, &mystat) == -1)
+            if(A_OPT)
             {
-                perror("lss");
-                exit(EXIT_FAILURE);
+                if(strcmp(".", file_list[j]->d_name) == 0 || strcmp("..", file_list[j]->d_name) == 0)
+                {
+                    continue;
+                }
             }
-            if((grp_query = getgrgid(mystat.st_gid)) == NULL)
+            if(!a_OPT)
             {
-                perror("lss");
-                exit(EXIT_FAILURE);
-            } // check for errors.
-            if((usr_query = getpwuid(mystat.st_uid)) == NULL)
+                if(file_list[j]->d_name[0] == '.')
+                {
+                    continue;
+                }
+            }
+            if(L_OPT)
             {
-                perror("lss");
-                exit(EXIT_FAILURE);
-            } // check for errors.
-            if((time_query = localtime(&mystat.st_atime)) == NULL)
+                if(stat(findbuf, &mystat) == -1)
+                {
+                    perror("lss");
+                    exit(EXIT_FAILURE);
+                }
+            }
+            else
             {
-                perror("lss");
-                exit(EXIT_FAILURE);
-            } // check for errors.
-           strftime(timebuf, 20, "%b %d %H:%M", time_query);
-           print_permissions(mystat);
-           if( printf("%-s\t",modebuf) < 0)
-           {
-                perror("lss");
-               exit(EXIT_FAILURE);
-           }
-           if( printf("%-ld\t", mystat.st_nlink) < 0)
-           {
-                perror("lss");
-               exit(EXIT_FAILURE);
-           }
-           if( printf("%-s\t", usr_query->pw_name) < 0)
-           {
-                perror("lss");
-               exit(EXIT_FAILURE);
-           }
-           if( printf("%-s\t", grp_query->gr_name) < 0)
-           {
-                perror("lss");
-               exit(EXIT_FAILURE);
-           }
-           if( printf("%-ld\t",mystat.st_size) < 0)
-           {
-                perror("lss");
-               exit(EXIT_FAILURE);
-           }
-           if( printf("%s\t", timebuf) < 0)
-           {
-                perror("lss");
-               exit(EXIT_FAILURE);
-           }
-           if( printf(" %-s\t\n", file_list[j]->d_name) < 0)
-           {
-                perror("lss");
-               exit(EXIT_FAILURE);
-           }
+                if(lstat(findbuf, &mystat) == -1)
+                {
+                    perror("lss");
+                    exit(EXIT_FAILURE);
+                }
+            }
+
+            print_file_info(mystat, file_list[j]->d_name);
         }
 
     if(closedir(dir) == -1)
@@ -217,6 +286,7 @@ int main(int argc, char *argv[])
     }
     printf("%s\n","");
     free(file_list);
+    file_list = NULL;
     }
 
     return 0;
