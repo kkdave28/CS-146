@@ -4,7 +4,6 @@ trap cleanup 0 1 2 3 15
 
 cleanup()
 {
-    //echo "Recived signal... Cleanup"
     rm -f ~/temp-progs/"$0"
     rm -f ~/temp-progs/core.*
     rm -f ~/temp-progs/vgcore.*
