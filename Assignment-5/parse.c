@@ -34,13 +34,8 @@ struct cmd* parse_pipes(char * command)
 }
 int num_tokens(char * arg)
 {
-    int tokens = 0;
+    int tokens = 1;
     char * temp = strtok(arg, whitespace);
-    if(temp == NULL)
-    {
-        return 1;
-    }
-    
     while (temp != NULL)
     {
         tokens++;
@@ -55,19 +50,53 @@ void tokenize_and_print(struct cmd * all_commands)
     {
         char * copy = all_commands->commands[i];
         char * temp = strtok(copy, whitespace);
+        char print_string[256][256];
+        unsigned char redir_flag_in = 0;
+        unsigned char redir_flag_out = 0;
+        char * redir_in = NULL;
         int count = 0;
-        if(temp == NULL)
-        {
-            printf("\"%s\"|", copy);
-            continue;
-        }
         while(temp != NULL)
         {
-            printf("\"%s,\"", temp);
+            strcpy(print_string[count++], temp);
             temp = strtok(NULL, whitespace);
+            //count ++;
         }
-        if(i < all_commands->count -1)
-            printf (" |");
+        for(int j=0; j< count; j++)
+        {
+            if(strcmp("<", print_string[j]) == 0)
+            {
+                redir_in = print_string[j+1];
+                redir_flag_in = 1;
+            }
+            if(strcmp(">", print_string[j]) == 0)
+            {
+                redir_flag_out = 1;
+            }
+        }
+        if(redir_flag_in)
+            printf(" < \'%s\' ", redir_in);
+        for(int j=0; j< count; j++)
+        {
+            if(strcmp("<", print_string[j]) == 0)
+            {
+                j+=1;
+                continue;
+            }
+            else if(strcmp(">", print_string[j]) == 0)
+            {
+                printf(" > ");
+                continue;
+            }
+            else
+            {
+                if(j > 0 )
+                    printf(" \'%s\' ", print_string[j]);
+                else
+                    printf(" \'%s\' ", print_string[j]);
+            }
+        }
+        if(i< all_commands->count-1)
+        printf("| ");
     }
     printf("\n");
 }
