@@ -17,17 +17,9 @@ struct cmd* parse_pipes(char * command)
     struct cmd* ret;
     ret = malloc(sizeof(*ret));
     ret->count = 0;
-    if(temp == NULL) // only 1 command
-    {
-        strcpy(ret->commands[ret->count], command);
-        ret->count++;
-        //printf("%d: %s\n",1,command);
-    }
-    //int count = 1;
     while(temp != NULL)
     {
         strcpy(ret->commands[ret->count++], temp);
-        //printf("%d: %s\n",count++,temp);
         temp = strtok(NULL, "|");
     }
     return ret;
@@ -59,7 +51,6 @@ void tokenize_and_print(struct cmd * all_commands)
         {
             strcpy(print_string[count++], temp);
             temp = strtok(NULL, whitespace);
-            //count ++;
         }
         for(int j=0; j< count; j++)
         {
@@ -107,14 +98,8 @@ int main(int argc, char const *argv[])
     while(get_command(command) >=0)
     {
         all_commands = parse_pipes(command);
-        // for(int i=0; i< all_commands->count; i++)
-        // {
-        //     printf("%d: %s\n", i+1, all_commands->commands[i]);
-        // }
         tokenize_and_print(all_commands);
         free(all_commands);
     }
-    
-
     return 0;
 }
