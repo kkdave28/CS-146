@@ -25,7 +25,7 @@ struct parsed_cmd
     unsigned char redir_in_flag;
     unsigned char redit_out_flag;
 };
-void shell();
+void Parse();
 void tokenize_and_print(struct cmd*);
 int num_tokens(char *);
 struct cmd* parse_pipes(char * );

@@ -69,7 +69,7 @@ void tokenize_and_print(struct cmd * all_commands)
                 redir_in = print_string[j]+1;
             }
         }
-        if(redir_flag_in)
+        if(redir_flag_in && i == 0)
             printf(" < \'%s\' ", redir_in);
         for(int j=0; j< count; j++)
         {
@@ -80,6 +80,11 @@ void tokenize_and_print(struct cmd * all_commands)
             }
             if(print_string[j][0] == '<')
             {
+                continue;
+            }
+            else if(strcmp(">", print_string[j]) == 0 && i != all_commands->count -1)
+            {
+                j+=1;
                 continue;
             }
             else if(strcmp(">", print_string[j]) == 0)
@@ -100,7 +105,7 @@ void tokenize_and_print(struct cmd * all_commands)
     }
     printf("\n");
 }
-void shell()
+void Parse()
 {
     static char command[MAXCOMMANDLEN];
     struct cmd* all_commands;

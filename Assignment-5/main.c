@@ -2,6 +2,6 @@
 
 int main(int argc, char const *argv[])
 {
-    shell();
+    Parse();
     return 0;
 }
