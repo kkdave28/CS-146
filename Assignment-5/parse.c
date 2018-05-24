@@ -1,5 +1,5 @@
 #include "parse.h"
-
+char whitespace[] = " \t\r\n\v";
 int get_command(char * buf)
 {
     bzero(buf, MAXCOMMANDLEN);
@@ -63,6 +63,11 @@ void tokenize_and_print(struct cmd * all_commands)
             {
                 redir_flag_out = 1;
             }
+            if(print_string[j][0] == '<' && !redir_flag_in)
+            {
+                redir_flag_in = 1;
+                redir_in = print_string[j]+1;
+            }
         }
         if(redir_flag_in)
             printf(" < \'%s\' ", redir_in);
@@ -71,6 +76,10 @@ void tokenize_and_print(struct cmd * all_commands)
             if(strcmp("<", print_string[j]) == 0)
             {
                 j+=1;
+                continue;
+            }
+            if(print_string[j][0] == '<')
+            {
                 continue;
             }
             else if(strcmp(">", print_string[j]) == 0)
@@ -91,7 +100,7 @@ void tokenize_and_print(struct cmd * all_commands)
     }
     printf("\n");
 }
-int main(int argc, char const *argv[])
+void shell()
 {
     static char command[MAXCOMMANDLEN];
     struct cmd* all_commands;
@@ -101,5 +110,4 @@ int main(int argc, char const *argv[])
         tokenize_and_print(all_commands);
         free(all_commands);
     }
-    return 0;
 }
