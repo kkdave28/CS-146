@@ -1,7 +1,7 @@
-#include "parse.h"
+#include "shell.h"
 
 int main(int argc, char const *argv[])
 {
-    Parse();
+    shell();
     return 0;
 }

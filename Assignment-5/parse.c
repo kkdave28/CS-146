@@ -1,13 +1,5 @@
 #include "parse.h"
-int get_command(char * buf)
-{
-    bzero(buf, MAXINPUT);
-    fprintf(stdout, "%s ", "?");
-    fgets(buf, MAXINPUT, stdin);
-    if(!(*buf))
-        return -1;
-    return 0;
-}
+
 struct basic_command * set_execute_command()
 {
     struct execute_command * command;
@@ -17,7 +9,7 @@ struct basic_command * set_execute_command()
     struct basic_command * ret = (struct basic_command*)(command);
     return ret;
 }
-struct basic_command * set_redirect_command(struct basic_command * command, char * filename, char * enviornment_file, unsigned char mode, long int file_des)
+struct basic_command * set_redirect_command(struct basic_command * command, char * filename, char * enviornment_file, long int mode, long int file_des)
 {
     struct redirect_command * another_command;
     another_command = malloc(sizeof(*another_command));
@@ -176,7 +168,7 @@ struct basic_command * parse_redirect_command(struct basic_command * command, ch
                 command = set_redirect_command(command, q, eq, O_RDONLY, 0);
                 break;
             case '>':
-                command = set_redirect_command(command, q, eq, O_WRONLY|O_CREAT, 1);
+                command = set_redirect_command(command, q, eq, O_RDWR|O_CREAT|S_IRWXG|S_IRWXU, 1);
                 break;
         }
     }
@@ -287,13 +279,7 @@ struct basic_command * validate_command(struct basic_command * command)
     return command;
 
 }
-struct basic_command * Parse()
+struct basic_command * Parse(char * command)
 {
-    static char command[MAXINPUT];
-    struct basic_command * parsed_command;
-    while(get_command(command) >= 0)
-    {
-        parsed_command = parse_command(command);
-    
-    }
+    return parse_command(command);   
 }
