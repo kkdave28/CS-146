@@ -13,7 +13,7 @@ int custom_fork()
     int ret = fork();
     if(ret  == -1)
     {
-        fprintf(stderr, "Fork Error: %s\n", strerror(errno));
+        fprintf(stderr, "NSH: %s\n", strerror(errno));
         exit(EXIT_FAILURE);
     }
     return ret;
@@ -47,7 +47,7 @@ void run(struct basic_command * command)
             if(ex->commands[0] == 0)
                 exit(EXIT_SUCCESS);
             execvpe(ex->commands[0], ex->commands, envp);
-            fprintf(stderr, "EXEC FAILED\n");
+            fprintf(stderr, "NSH: %s\n", strerror(errno));
             exit(EXIT_FAILURE);
             break;
         case REDIRECT_COMMAND:
@@ -71,7 +71,7 @@ void run(struct basic_command * command)
             pc = (struct piped_command*)(command);
             if(pipe(pipe_des) < 0)
             {
-                fprintf(stderr,"Shell Error, Pipe: %s\n", strerror(errno));
+                fprintf(stderr,"NSH: %s\n", strerror(errno));
                 exit(EXIT_FAILURE);
             }
             if(custom_fork() == 0)
@@ -105,11 +105,53 @@ void run(struct basic_command * command)
     }
     exit(EXIT_SUCCESS);
 }
+int is_cd(char * command)
+{
+    return command[0] == 'c' && command[1] == 'd' ;
+}
+void change_directory(char * dir, char * cwd)
+{
+    if(chdir(dir) < 0)
+    {
+        fprintf(stderr, "NSH: %s\n", strerror(errno));
+    }
+    else
+    {
+        char cwd_en[1024];
+        sprintf(cwd_en, "PWD=%s", cwd);
+        putenv(cwd_en);
+        printf("Previous Working Directory: %s\n", cwd);
+        printf("Current Working Directory: %s\n", dir);
+    }
+}
 void shell(void)
 {
     static char command[MAXINPUT];
     while(get_command(command) >=0)
     {
+        if(is_cd(command))
+        {
+            command[strlen(command)-1] = 0;
+            char cwd[1024];
+            char home_directory[1024];
+            char username [1024];
+            if(getcwd(cwd, sizeof(cwd)) == NULL)
+                fprintf(stderr, "NSH: %s\n", strerror(errno));
+            else
+            {
+                if(strcmp(command+3, "PWD") == 0)
+                {
+                    change_directory(getenv("PWD"), cwd);
+                }
+
+                else
+                {
+                    change_directory(command+3, cwd);
+                }
+            }
+            continue;
+        }
+    
         struct basic_command * ret = Parse(command);
         if(custom_fork() == 0)
         {
