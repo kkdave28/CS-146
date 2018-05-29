@@ -92,7 +92,7 @@ void run(struct basic_command * command)
 }
 int is_cd(char * command)
 {
-    return command[0] == 'c' && command[1] == 'd' ;
+    return command[0] == 'c' && command[1] == 'd' && command[2] == ' ';
 }
 void change_directory(char * dir, char * cwd)
 {
