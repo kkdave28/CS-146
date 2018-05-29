@@ -106,7 +106,7 @@ void change_directory(char * dir, char * cwd)
         sprintf(cwd_en, "PWD=%s", cwd);
         putenv(cwd_en);
         printf("Previous Working Directory: %s\n", cwd);
-        printf("Current Working Directory: %s\n", dir);
+        printf("Current  Working Directory: %s\n", dir);
     }
 }
 void shell(void)
