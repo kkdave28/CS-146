@@ -38,7 +38,7 @@ struct basic_command * set_piped_command(struct basic_command * left, struct bas
 
 char tokenize(char ** ps, char * es, char ** q, char ** eq)
 {
-    char * temp; // s
+    char * temp;
     char ret;
 
     temp = *ps;
@@ -98,22 +98,6 @@ struct basic_command * parse_command(char * command)
     validate_command(ret);
     return ret;
 }
-// struct basic_command * parse_line_command(char **ps, char * es)
-// {
-//     struct basic_command * ret;
-//     ret = parse_piped_command(ps, es);
-//     // while(peek(ps, es, "&"))
-//     // {
-//     //     tokenize(ps, es, NULL,NULL);
-//     //     ret = set_back_command(ret);
-//     // }
-//     // if(peek(ps,es, ";"))
-//     // {
-//     //     tokenize(ps, es, NULL,NULL);
-//     //     ret = set_piped_list_command(ret, parse_line_command(ps,es), 1);
-//     // }
-//     return ret;
-// }
 struct basic_command * parse_piped_command(char **ps, char * es)
 {
     struct basic_command * ret;
@@ -150,25 +134,6 @@ struct basic_command * parse_redirect_command(struct basic_command * command, ch
     }
     return command;
 }
-// struct basic_command * parse_block_commands(char ** ps, char * es)
-// {
-//     struct basic_command * ret;
-//     if(!peek(ps,es, "("))
-//     {
-//         fprintf(stderr, "Parseblock error\n");
-//         exit(EXIT_FAILURE);
-//     }
-//     tokenize(ps,es,NULL,NULL);
-//     ret = parse_line_command(ps,es);
-//     if(!peek(ps, es , ")"))
-//     {
-//         fprintf(stderr, "Syntax Error: Missing the \')\'");
-//         exit(EXIT_FAILURE);
-//     }
-//     tokenize(ps, es, NULL, NULL);
-//     ret = parse_redirect_command(ret, ps, es);
-//     return ret;
-// }
 struct basic_command * parse_exec_command( char ** ps, char * es)
 {
     char * q;
@@ -210,9 +175,7 @@ struct basic_command * parse_exec_command( char ** ps, char * es)
 struct basic_command * validate_command(struct basic_command * command)
 {
     int i;
-  //  struct back_command * bk;
-    struct execute_command * ex;   
-//    struct list_command * ls;
+    struct execute_command * ex;
     struct piped_command * pc;
     struct redirect_command * rd;
 

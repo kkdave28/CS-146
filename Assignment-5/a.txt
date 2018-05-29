@@ -1,8 +1,0 @@
-Makefile
-a.txt
-main.c
-parse.c
-parse.h
-shell
-shell.c
-shell.h
