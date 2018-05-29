@@ -55,7 +55,7 @@ struct basic_command * set_redirect_command(struct basic_command*, char *, char 
 struct basic_command * set_piped_command(struct basic_command *, struct basic_command *);
 
 char tokenize(char **, char *, char **, char **);
-int peek(char **, char *, char *);
+int scan(char **, char *, char *);
 struct basic_command * parse_piped_command(char **, char *);
 struct basic_command * parse_exec_command(char **, char *);
 struct basic_command * validate_command( struct basic_command*);

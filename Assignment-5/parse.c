@@ -73,7 +73,7 @@ char tokenize(char ** ps, char * es, char ** q, char ** eq)
     *ps = temp;
     return ret;
 }
-int peek(char ** ps, char * es, char * tokens)
+int scan(char ** ps, char * es, char * tokens)
 {
     char * temp;
     temp = * ps;
@@ -88,7 +88,7 @@ struct basic_command * parse_command(char * command)
     struct basic_command * ret;
     temp = command + strlen(command);
     ret = parse_piped_command(&command, temp);
-    peek(&command, temp, "");
+    scan(&command, temp, "");
     if(command != temp)
     {
         fprintf(stderr,"LEFTOVER :%s\n", command);
@@ -102,7 +102,7 @@ struct basic_command * parse_piped_command(char **ps, char * es)
 {
     struct basic_command * ret;
     ret = parse_exec_command(ps,es);
-    if(peek(ps, es, "|"))
+    if(scan(ps, es, "|"))
     {
         tokenize(ps, es, NULL, NULL);
         ret = set_piped_command(ret, parse_piped_command(ps,es));
@@ -114,7 +114,7 @@ struct basic_command * parse_redirect_command(struct basic_command * command, ch
     char tokens;
     char *q;
     char * eq;
-    while(peek(ps, es, "<>"))
+    while(scan(ps, es, "<>"))
     {
         tokens = tokenize(ps,es, NULL, NULL);
         if(tokenize(ps, es, &q, &eq) != 'a')
@@ -146,7 +146,7 @@ struct basic_command * parse_exec_command( char ** ps, char * es)
     command = (struct execute_command*)(ret);
     num_args = 0;
     ret = parse_redirect_command(ret, ps, es);
-    while(!peek(ps,es, "|"))
+    while(!scan(ps,es, "|"))
     {
         tokens = tokenize(ps,es, &q, &eq);
         if(tokens == 0)
