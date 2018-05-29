@@ -24,38 +24,18 @@ struct basic_command * set_redirect_command(struct basic_command * command, char
     struct basic_command * ret = (struct basic_command *)(another_command);
     return ret;
 }
-struct basic_command * set_piped_list_command(struct basic_command * left, struct basic_command * right, unsigned char type)
+struct basic_command * set_piped_command(struct basic_command * left, struct basic_command * right)
 {
     struct piped_command * command;
     command = malloc(sizeof(*command));
     bzero(command, sizeof(*command));
-    if(type == 1)
-    {
-        command->type = LIST_COMMAND;
-    }
-    else if(type == 2)
-    {
-        command->type = PIPED_COMMAND;
-    }
-    else
-    {
-        fprintf(stderr, "Unknown type\n");
-        exit(EXIT_FAILURE);
-    }
+    command->type = PIPED_COMMAND;
     command->left_command = left;
     command->right_command = right;
     struct basic_command * ret = (struct basic_command*)(command);
     return ret;
 }
-struct basic_command * set_back_command(struct basic_command * command)
-{
-    struct back_command * another;
-    another = malloc(sizeof(*another));
-    another->type = BACK_COMMAND;
-    another->command = command;
-    struct basic_command * ret = (struct basic_command*)(another);
-    return ret;
-}
+
 char tokenize(char ** ps, char * es, char ** q, char ** eq)
 {
     char * temp; // s
@@ -76,10 +56,6 @@ char tokenize(char ** ps, char * es, char ** q, char ** eq)
         case 0:
             break;
         case '|':
-        case '(':
-        case ')':
-        case ';':
-        case '&':
         case '<':
         case '>':
             temp++;
@@ -111,7 +87,7 @@ struct basic_command * parse_command(char * command)
     char * temp;
     struct basic_command * ret;
     temp = command + strlen(command);
-    ret = parse_line_command(&command, temp);
+    ret = parse_piped_command(&command, temp);
     peek(&command, temp, "");
     if(command != temp)
     {
@@ -122,22 +98,22 @@ struct basic_command * parse_command(char * command)
     validate_command(ret);
     return ret;
 }
-struct basic_command * parse_line_command(char **ps, char * es)
-{
-    struct basic_command * ret;
-    ret = parse_piped_command(ps, es);
-    while(peek(ps, es, "&"))
-    {
-        tokenize(ps, es, NULL,NULL);
-        ret = set_back_command(ret);
-    }
-    if(peek(ps,es, ";"))
-    {
-        tokenize(ps, es, NULL,NULL);
-        ret = set_piped_list_command(ret, parse_line_command(ps,es), 1);
-    }
-    return ret;
-}
+// struct basic_command * parse_line_command(char **ps, char * es)
+// {
+//     struct basic_command * ret;
+//     ret = parse_piped_command(ps, es);
+//     // while(peek(ps, es, "&"))
+//     // {
+//     //     tokenize(ps, es, NULL,NULL);
+//     //     ret = set_back_command(ret);
+//     // }
+//     // if(peek(ps,es, ";"))
+//     // {
+//     //     tokenize(ps, es, NULL,NULL);
+//     //     ret = set_piped_list_command(ret, parse_line_command(ps,es), 1);
+//     // }
+//     return ret;
+// }
 struct basic_command * parse_piped_command(char **ps, char * es)
 {
     struct basic_command * ret;
@@ -145,7 +121,7 @@ struct basic_command * parse_piped_command(char **ps, char * es)
     if(peek(ps, es, "|"))
     {
         tokenize(ps, es, NULL, NULL);
-        ret = set_piped_list_command(ret, parse_piped_command(ps,es), 2);
+        ret = set_piped_command(ret, parse_piped_command(ps,es));
     }
     return ret;
 }
@@ -168,31 +144,31 @@ struct basic_command * parse_redirect_command(struct basic_command * command, ch
                 command = set_redirect_command(command, q, eq, O_RDONLY, 0);
                 break;
             case '>':
-                command = set_redirect_command(command, q, eq, O_RDWR|O_CREAT|S_IRWXG|S_IRWXU, 1);
+                command = set_redirect_command(command, q, eq, O_WRONLY|O_CREAT, 1);
                 break;
         }
     }
     return command;
 }
-struct basic_command * parse_block_commands(char ** ps, char * es)
-{
-    struct basic_command * ret;
-    if(!peek(ps,es, "("))
-    {
-        fprintf(stderr, "Parseblock error\n");
-        exit(EXIT_FAILURE);
-    }
-    tokenize(ps,es,NULL,NULL);
-    ret = parse_line_command(ps,es);
-    if(!peek(ps, es , ")"))
-    {
-        fprintf(stderr, "Syntax Error: Missing the \')\'");
-        exit(EXIT_FAILURE);
-    }
-    tokenize(ps, es, NULL, NULL);
-    ret = parse_redirect_command(ret, ps, es);
-    return ret;
-}
+// struct basic_command * parse_block_commands(char ** ps, char * es)
+// {
+//     struct basic_command * ret;
+//     if(!peek(ps,es, "("))
+//     {
+//         fprintf(stderr, "Parseblock error\n");
+//         exit(EXIT_FAILURE);
+//     }
+//     tokenize(ps,es,NULL,NULL);
+//     ret = parse_line_command(ps,es);
+//     if(!peek(ps, es , ")"))
+//     {
+//         fprintf(stderr, "Syntax Error: Missing the \')\'");
+//         exit(EXIT_FAILURE);
+//     }
+//     tokenize(ps, es, NULL, NULL);
+//     ret = parse_redirect_command(ret, ps, es);
+//     return ret;
+// }
 struct basic_command * parse_exec_command( char ** ps, char * es)
 {
     char * q;
@@ -201,15 +177,11 @@ struct basic_command * parse_exec_command( char ** ps, char * es)
     int num_args;
     struct execute_command * command;
     struct basic_command * ret;
-    if(peek(ps,es, "("))
-    {
-        return parse_block_commands(ps, es);
-    }
     ret = set_execute_command();
     command = (struct execute_command*)(ret);
     num_args = 0;
     ret = parse_redirect_command(ret, ps, es);
-    while(!peek(ps,es, "|)&;"))
+    while(!peek(ps,es, "|"))
     {
         tokens = tokenize(ps,es, &q, &eq);
         if(tokens == 0)
@@ -238,9 +210,9 @@ struct basic_command * parse_exec_command( char ** ps, char * es)
 struct basic_command * validate_command(struct basic_command * command)
 {
     int i;
-    struct back_command * bk;
+  //  struct back_command * bk;
     struct execute_command * ex;   
-    struct list_command * ls;
+//    struct list_command * ls;
     struct piped_command * pc;
     struct redirect_command * rd;
 
@@ -265,15 +237,6 @@ struct basic_command * validate_command(struct basic_command * command)
             pc = (struct piped_command *)(command);
             validate_command(pc->left_command);
             validate_command(pc->right_command);
-            break;
-        case LIST_COMMAND:
-            ls = (struct list_command *)(command);
-            validate_command(ls->left_command);
-            validate_command(ls->right_command);
-            break;
-        case BACK_COMMAND:
-            bk = (struct back_command*)(command);
-            validate_command(bk->command);
             break;
     }
     return command;

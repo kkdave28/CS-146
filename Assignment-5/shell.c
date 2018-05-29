@@ -21,9 +21,8 @@ int custom_fork()
 void run(struct basic_command * command)
 {
     int pipe_des[2];
-    struct back_command * bk;
+
     struct execute_command * ex;   
-    struct list_command * ls;
     struct piped_command * pc;
     struct redirect_command * rd;
 
@@ -53,19 +52,12 @@ void run(struct basic_command * command)
         case REDIRECT_COMMAND:
             rd = (struct redirect_command*)(command);
             close(rd->file_des);
-            if(open(rd->redir_file, rd->mode) < 0)
+            if(open(rd->redir_file, rd->mode,S_IRWXG|S_IRWXU) < 0)
             {
                 fprintf(stderr, "%s\n", strerror(errno));
                 exit(EXIT_FAILURE);
             }
             run(rd->command);
-            break;
-        case LIST_COMMAND:
-            ls = (struct list_command*)(command);
-            if(custom_fork() == 0)
-                run(ls->left_command);
-            wait(NULL);
-            run(ls->right_command);
             break;
         case PIPED_COMMAND:
             pc = (struct piped_command*)(command);
@@ -95,13 +87,6 @@ void run(struct basic_command * command)
             wait(NULL);
             wait(NULL);
             break;
-        case BACK_COMMAND:
-            bk = (struct back_command*)(command);
-            if(custom_fork() == 0)
-            {
-                run(bk->command);
-            }
-            break;
     }
     exit(EXIT_SUCCESS);
 }
@@ -127,6 +112,9 @@ void change_directory(char * dir, char * cwd)
 void shell(void)
 {
     static char command[MAXINPUT];
+    char dwd[1024];
+    sprintf(dwd, "DWD=/home/%s", getlogin());
+    putenv(dwd);
     while(get_command(command) >=0)
     {
         if(is_cd(command))
@@ -139,11 +127,14 @@ void shell(void)
                 fprintf(stderr, "NSH: %s\n", strerror(errno));
             else
             {
-                if(strcmp(command+3, "PWD") == 0)
+                if(strcmp(command+3, "-p") == 0)
                 {
                     change_directory(getenv("PWD"), cwd);
                 }
-
+                else if(strcmp(command+3, "-d") == 0)
+                {
+                    change_directory(getenv("DWD"), cwd);
+                }
                 else
                 {
                     change_directory(command+3, cwd);
