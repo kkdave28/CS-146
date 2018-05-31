@@ -1,3 +1,6 @@
+#ifndef SHELL_H
+#define SHELL_H
+
 #include "parse.h"
 
 extern int execvpe(const char *file, char *const argv[], char *const envp[]);
@@ -9,3 +12,5 @@ void run(struct basic_command *);
 int is_cd(char *);
 void change_directory(char *, char *);
 int custom_fork(void);
+
+#endif //SHELL_H
