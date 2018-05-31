@@ -59,6 +59,11 @@ char tokenize(char ** ps, char * es, char ** q, char ** eq)
         case '<':
         case '>':
             temp++;
+            if(*temp == '>')
+            {
+                ret = '+';
+                temp++;
+            }
             break;
         default:
             ret = 'a';
@@ -128,7 +133,10 @@ struct basic_command * parse_redirect_command(struct basic_command * command, ch
                 command = set_redirect_command(command, q, eq, O_RDONLY, 0);
                 break;
             case '>':
-                command = set_redirect_command(command, q, eq, O_WRONLY|O_CREAT, 1);
+                command = set_redirect_command(command, q, eq, O_WRONLY|O_CREAT|O_TRUNC, 1);
+                break;
+            case '+':
+                command = set_redirect_command(command, q, eq, O_WRONLY|O_CREAT|O_APPEND ,1);
                 break;
         }
     }

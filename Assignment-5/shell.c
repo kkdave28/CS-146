@@ -1,4 +1,14 @@
 #include "shell.h"
+void child_sigint_handler(int sig)
+{
+    exit(EXIT_SUCCESS);
+}
+void parent_sigint_handler(int sig)
+{
+    // Do nothing in parent process, print newline for better formatting
+    printf("?\n");
+    
+}
 int get_command(char * buf)
 {
     bzero(buf, MAXINPUT);
@@ -115,6 +125,7 @@ void shell(void)
     char dwd[1024];
     sprintf(dwd, "DWD=/home/%s", getlogin());
     putenv(dwd);
+    signal(SIGINT, &parent_sigint_handler);
     while(get_command(command) >=0)
     {
         if(is_cd(command))
@@ -146,8 +157,10 @@ void shell(void)
         struct basic_command * ret = Parse(command);
         if(custom_fork() == 0)
         {
+            signal(SIGINT, &child_sigint_handler);
             run(ret);
         }
+
         wait(NULL);
     }
     exit(EXIT_SUCCESS);

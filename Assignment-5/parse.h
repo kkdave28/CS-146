@@ -12,7 +12,7 @@
 #include <sys/wait.h>
 #include <errno.h>
 #include <unistd.h>
-
+#include <signal.h>
 #define MAXCOMMANDS         64
 #define MAXINPUT            512
 #define DEBUG_MODE          1
