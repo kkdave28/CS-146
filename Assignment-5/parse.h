@@ -14,7 +14,7 @@
 #include <unistd.h>
 #include <signal.h>
 #define MAXCOMMANDS         64
-#define MAXINPUT            512
+#define MAXINPUT            1024
 #define DEBUG_MODE          1
 
 #define EXECUTE_COMMAND     1
