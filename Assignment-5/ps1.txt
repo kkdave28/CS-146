@@ -1,0 +1,13 @@
+total 80
+drwxr-xr-x 3 kkdave kkdave  4096 Jun  4 10:04 .
+drwxr-xr-x 7 kkdave kkdave  4096 May 27 19:13 ..
+-rw-rw-r-- 1 kkdave kkdave    82 Jun  4 09:56 eg.c
+-rw-r--r-- 1 kkdave kkdave    90 May 26 17:30 main.c
+-rw-r--r-- 1 kkdave kkdave   132 May 31 12:43 Makefile
+-rw-r--r-- 1 kkdave kkdave  6009 May 30 17:20 parse.c
+-rw-r--r-- 1 kkdave kkdave  1963 May 31 12:44 parse.h
+-rw-rw-r-- 1 kkdave kkdave     2 Jun  4 10:04 ps1.txt
+-rwxrwxr-x 1 kkdave kkdave 26936 Jun  4 09:59 shell
+-rw-rw-r-- 1 kkdave kkdave  4361 Jun  4 09:59 shell.c
+-rw-rw-r-- 1 kkdave kkdave   380 May 31 10:12 shell.h
+drwxrwxr-x 2 kkdave kkdave  4096 May 26 09:31 .vscode
