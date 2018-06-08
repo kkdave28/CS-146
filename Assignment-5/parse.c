@@ -35,56 +35,68 @@ struct basic_command * set_piped_command(struct basic_command * left, struct bas
     struct basic_command * ret = (struct basic_command*)(command);
     return ret;
 }
-
-char tokenize(char ** ps, char * es, char ** q, char ** eq)
+char * skip_whitespace(char * str1, char * str2)
+{
+    while(str1 < str2 && strchr(whitespace, *str1))
+    {
+        str1++;
+    }
+    return str1;
+}
+char * skip_whitespace_symbols(char * str1, char * str2)
+{
+    while(str1 < str2 && !strchr(whitespace, *str1) && !strchr(special_symbols, *str1))
+    {
+        str1++;
+    }
+    return str1;
+}
+char tokenize(char ** unparsed_command, char * final_parsed_command, char ** pased_tokens, char ** set_tokens)
 {
     char * temp;
     char ret;
 
-    temp = *ps;
-    while(temp < es && strchr(whitespace, *temp))
+    temp = *unparsed_command;
+    temp = skip_whitespace(temp, final_parsed_command);
+    if(pased_tokens != NULL)
     {
-        temp++;
-    }
-    if(q != NULL)
-    {
-        *q = temp;
+        *pased_tokens = temp;
     }
     ret = *temp;
-    switch(*temp)
+    if(*temp != 0)
     {
-        case 0:
-            break;
-        case '|':
-        case '<':
-        case '>':
+        if(*temp == '|' || *temp == '<')
+        {
+            temp ++;
+        }
+        else if(*temp == '>')
+        {
             temp++;
             if(*temp == '>')
             {
                 ret = '+';
                 temp++;
             }
-            break;
-        default:
+        }
+        else
+        {
             ret = 'a';
-            while(temp < es && !strchr(whitespace, *temp) && !strchr(special_symbols, *temp))
-                temp++;
-            break;
+            temp = skip_whitespace_symbols(temp, final_parsed_command);
+        }
     }
-    if(eq != NULL)
-        *eq = temp;
-    while(temp < es && strchr(whitespace, *temp))
-        temp++;
-    *ps = temp;
+    if(set_tokens != NULL)
+        *set_tokens = temp;
+    temp = skip_whitespace(temp, final_parsed_command);
+
+    *unparsed_command = temp;
     return ret;
 }
-int scan(char ** ps, char * es, char * tokens)
+int scan(char ** unparsed_command, char * final_parsed_command, char * tokens)
 {
     char * temp;
-    temp = * ps;
-    while(temp < es && strchr(whitespace, *temp))
-        temp++;
-    *ps = temp;
+    temp = * unparsed_command;
+    temp = skip_whitespace(temp, final_parsed_command);
+    *unparsed_command = temp;
     return *temp && strchr(tokens, *temp);
 }
 struct basic_command * parse_command(char * command)
@@ -103,49 +115,54 @@ struct basic_command * parse_command(char * command)
     validate_command(ret);
     return ret;
 }
-struct basic_command * parse_piped_command(char **ps, char * es)
+struct basic_command * parse_piped_command(char **unparsed_command, char * final_parsed_command)
 {
     struct basic_command * ret;
-    ret = parse_exec_command(ps,es);
-    if(scan(ps, es, "|"))
+    ret = parse_exec_command(unparsed_command,final_parsed_command);
+    if(scan(unparsed_command, final_parsed_command, "|"))
     {
-        tokenize(ps, es, NULL, NULL);
-        ret = set_piped_command(ret, parse_piped_command(ps,es));
+        tokenize(unparsed_command, final_parsed_command, NULL, NULL);
+        ret = set_piped_command(ret, parse_piped_command(unparsed_command,final_parsed_command));
     }
     return ret;
 }
-struct basic_command * parse_redirect_command(struct basic_command * command, char ** ps, char * es)
+struct basic_command * parse_redirect_command(struct basic_command * command, char ** unparsed_command, char * final_parsed_command)
 {
     char tokens;
-    char *q;
-    char * eq;
-    while(scan(ps, es, "<>"))
+    char *pased_tokens;
+    char * set_tokens;
+    while(scan(unparsed_command, final_parsed_command, "<>"))
     {
-        tokens = tokenize(ps,es, NULL, NULL);
-        if(tokenize(ps, es, &q, &eq) != 'a')
+        tokens = tokenize(unparsed_command,final_parsed_command, NULL, NULL);
+        if(tokenize(unparsed_command, final_parsed_command, &pased_tokens, &set_tokens) != 'a')
         {
             fprintf(stderr , "Missing file for redirection");
             exit(EXIT_FAILURE);
         }
-        switch(tokens)
+        if(tokens == '<')
         {
-            case '<':
-                command = set_redirect_command(command, q, eq, O_RDONLY, 0);
-                break;
-            case '>':
-                command = set_redirect_command(command, q, eq, O_WRONLY|O_CREAT|O_TRUNC, 1);
-                break;
-            case '+':
-                command = set_redirect_command(command, q, eq, O_WRONLY|O_CREAT|O_APPEND ,1);
-                break;
+            command = set_redirect_command(command, pased_tokens, set_tokens, O_RDONLY, 0);
+        }
+        else if(tokens == '>')
+        {
+            command = set_redirect_command(command, pased_tokens, set_tokens, O_WRONLY|O_CREAT|O_TRUNC, 1);
+        }
+        else if(tokens == '+')
+        {
+            command = set_redirect_command(command, pased_tokens, set_tokens, O_WRONLY|O_CREAT|O_APPEND ,1);
+        }
+        else
+        {
+            fprintf(stderr, "Error parsing redirect command\n");
+            exit(EXIT_FAILURE);
         }
     }
     return command;
 }
-struct basic_command * parse_exec_command( char ** ps, char * es)
+struct basic_command * parse_exec_command( char ** unparsed_command, char * final_parsed_command)
 {
-    char * q;
-    char * eq;
+    char * pased_tokens;
+    char * set_tokens;
     char tokens;
     int num_args;
     struct execute_command * command;
@@ -153,10 +170,10 @@ struct basic_command * parse_exec_command( char ** ps, char * es)
     ret = set_execute_command();
     command = (struct execute_command*)(ret);
     num_args = 0;
-    ret = parse_redirect_command(ret, ps, es);
-    while(!scan(ps,es, "|"))
+    ret = parse_redirect_command(ret, unparsed_command, final_parsed_command);
+    while(!scan(unparsed_command,final_parsed_command, "|"))
     {
-        tokens = tokenize(ps,es, &q, &eq);
+        tokens = tokenize(unparsed_command,final_parsed_command, &pased_tokens, &set_tokens);
         if(tokens == 0)
         {
             break;
@@ -166,15 +183,15 @@ struct basic_command * parse_exec_command( char ** ps, char * es)
             fprintf(stderr, "Syntax Error\n");
             exit(EXIT_FAILURE);
         }
-        command->commands[num_args] = q;
-        command->enviornment_vars[num_args] = eq;
+        command->commands[num_args] = pased_tokens;
+        command->enviornment_vars[num_args] = set_tokens;
         num_args+=1;
         if(num_args >= MAXCOMMANDS)
         {
             fprintf(stderr, "Exceeded, maximum arguments\n");
             exit(EXIT_FAILURE);
         }
-        ret = parse_redirect_command(ret, ps, es);
+        ret = parse_redirect_command(ret, unparsed_command, final_parsed_command);
     }
     command->commands[num_args] = 0;
     command->enviornment_vars[num_args] = 0;
