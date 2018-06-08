@@ -9,11 +9,11 @@ void parent_sigint_handler(int sig)
     printf("?\n");
     
 }
-int get_command(char * buf)
+int get_command(char * buf, FILE * stream)
 {
     bzero(buf, MAXINPUT);
     fprintf(stdout, "%s ", "?");
-    fgets(buf, MAXINPUT, stdin);
+    fgets(buf, MAXINPUT, stream);
     if(!(*buf))
         return -1;
     return 0;
@@ -119,14 +119,14 @@ void change_directory(char * dir, char * cwd)
         printf("Current  Working Directory: %s\n", dir);
     }
 }
-void shell(void)
+void shell(FILE * stream)
 {
     static char command[MAXINPUT];
     char dwd[1024];
     sprintf(dwd, "DWD=/home/%s", getlogin());
     putenv(dwd);
     signal(SIGINT, &parent_sigint_handler);
-    while(get_command(command) >=0)
+    while(get_command(command, stream) >=0)
     {
         if(is_cd(command))
         {

@@ -1,123 +1,120 @@
-divider="------------------------------------------"
-append_text="`echo ""`
-The FitnessGram™ Pacer Test is a multistage aerobic capacity test that progressively gets more difficult as it continues. The 20 meter pacer test will begin in 30 seconds. Line up at the start. The running speed starts slowly, but gets faster each minute after you hear this signal. [beep] A single lap should be completed each time you hear this sound. [ding] Remember to run in a straight line, and run as long as possible. The second time you fail to complete a lap before the sound, your test is over. The test will begin on the word start. On your mark, get ready, start."
-echo "$divider"
-echo ""
-echo "Demonstrating execution of simple commands"
-echo ""
-echo "$divider"
-echo "1. ls"
-echo ""
+echo ------------------------------------------
+echo  
+echo  Demonstrating execution of simple commands 
+echo  
+echo ------------------------------------------
+echo 1. ls 
+echo  
 ls
-echo ""
-echo "$divider"
-echo ""
-echo "2. ps"
-echo ""
+echo  
+echo ------------------------------------------
+echo  
+echo 2. ps 
+echo  
 ps
-echo ""
-echo "$divider"
-echo ""
-echo "3. ls with some options (-laS)"
-echo ""
+echo  
+echo ------------------------------------------
+echo  
+echo 3. ls with some options -laS 
+echo  
 ls -laS
-echo ""
-echo "$divider"
-echo ""
-echo "4. ps with options (-ax)"
-echo ""
+echo  
+echo ------------------------------------------
+echo  
+echo  4. ps with options -ax 
+echo  
 ps -ax
-echo ""
-echo "$divider"
-echo ""
-echo "Demonstration of simple commands completed"
-echo ""
-echo "$divider"
-echo ""
-echo "Demonstrating Redirection Commands"
-echo ""
-echo "$divider"
-echo "1. ls > testfile.txt"
-echo ""
+echo  
+echo ------------------------------------------
+echo  
+echo  Demonstration of simple commands completed 
+echo  
+echo ------------------------------------------
+echo  
+echo  Demonstrating Redirection Commands 
+echo  
+echo ------------------------------------------
+echo 1. ls into testfile.txt 
+echo  
 ls > testfile.txt
-echo ""
-echo "$divider"
-echo ""
-echo "2. cat < testfile.txt"
-echo ""
+echo  
+echo ------------------------------------------
+echo  
+echo  2. cat from testfile.txt 
+echo  
 cat < testfile.txt
-echo ""
-echo "$divider"
-echo ""
-echo "3. echo [text] >> textfile.txt"
-echo ""
-echo "$append_text" >> testfile.txt
-echo ""
-echo "$divider"
-echo ""
-echo "4. cat < testfile.txt"
-echo ""
+echo  
+echo ------------------------------------------
+echo  
+echo  3. echo [text] append textfile.txt 
+echo  
+echo  The FitnessGram™ Pacer Test is a multistage aerobic capacity test that progressively gets more difficult as it continues. The 20 meter pacer test will begin in 30 seconds. Line up at the start. The running speed starts slowly, but gets faster each minute after you hear this signal. [beep] A single lap should be completed each time you hear this sound. [ding] Remember to run in a straight line, and run as long as possible. The second time you fail to complete a lap before the sound, your test is over. The test will begin on the word start. On your mark, get ready, start.  >> testfile.txt
+echo  
+echo ------------------------------------------
+echo  
+echo  4. cat from testfile.txt 
+echo  
 cat < testfile.txt
-echo ""
-echo "$divider"
-echo ""
-echo "Demonstration of redirection completed"
-echo ""
-echo "$divider"
-echo ""
-echo "Demonstrating piped commands"
-echo ""
-echo "$divider"
-echo "1. ls -al | wc -l"
-echo ""
+echo  
+echo ------------------------------------------
+echo  
+echo  Demonstration of redirection completed 
+echo  
+echo ------------------------------------------
+echo  
+echo  Demonstrating piped commands 
+echo  
+echo ------------------------------------------
+echo  1. ls -al piped wc -l 
+echo  
 ls -al | wc -l
-echo ""
-echo "$divider"
-echo ""
-echo "2. ls | sort | uniq | wc"
-echo ""
+echo  
+echo ------------------------------------------
+echo  
+echo  2. ls piped sort piped uniq piped wc 
+echo  
 ls | sort | uniq | wc 
-echo ""
-echo "$divider"
-echo ""
-echo "3. cat < testfile.txt | wc -l"
-echo ""
+echo  
+echo ------------------------------------------
+echo  
+echo  3. cat into testfile.txt piped wc -l 
+echo  
 cat < testfile.txt | wc -l
-echo ""
-echo "$divider"
-echo ""
-echo "4. cat < testfile.txt | wc -l > testfile2.txt"
-echo ""
+echo  
+echo ------------------------------------------
+echo  
+echo  4. cat into testfile.txt piped wc -l to testfile2.txt 
+echo  
 cat < testfile.txt | wc -l > testfile2.txt
-echo ""
-echo "$divider"
-echo ""
-echo "5. cat < testfile2.txt"
-echo ""
+echo  
+echo ------------------------------------------
+echo  
+echo  5. cat into testfile2.txt 
+echo  
 cat < testfile2.txt
-echo ""
-echo "$divider"
-echo ""
-echo "6. cat < testfile.txt | sort | uniq | wc > testfile2.txt"
-echo ""
+echo  
+echo ------------------------------------------
+echo  
+echo  6. cat into testfile.txt piped sort piped uniq piped wc to testfile2.txt 
+echo  
 cat < testfile.txt | sort | uniq | wc > testfile2.txt
-echo ""
-echo "$divider"
-echo ""
-echo "7. cat < testfile2.txt"
-echo ""
+echo  
+echo ------------------------------------------
+echo  
+echo  7. cat into testfile2.txt 
+echo  
 cat < testfile2.txt
-echo ""
-echo "$divider"
-echo ""
-echo "Demonstration of pipes completed"
-echo ""
-echo "$divider"
-echo ""
-echo ""
-echo "$divider"
-echo ""
-echo "End of Demonstration"
-echo "Have a nice day."
-echo ""
-echo "$divider"
+echo  
+echo ------------------------------------------
+echo  
+echo  Demonstration of pipes completed 
+echo  
+echo ------------------------------------------
+echo  
+echo  
+echo ------------------------------------------
+echo  
+echo  End of Demonstration 
+echo  Have a nice day. 
+echo  
+echo ------------------------------------------
