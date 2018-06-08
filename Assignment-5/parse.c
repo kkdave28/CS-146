@@ -35,53 +35,46 @@ struct basic_command * set_piped_command(struct basic_command * left, struct bas
     struct basic_command * ret = (struct basic_command*)(command);
     return ret;
 }
-char * skip_whitespace(char * str1, char * str2)
-{
-    while(str1 < str2 && strchr(whitespace, *str1))
-    {
-        str1++;
-    }
-    return str1;
-}
-char * skip_whitespace_symbols(char * str1, char * str2)
-{
-    while(str1 < str2 && !strchr(whitespace, *str1) && !strchr(special_symbols, *str1))
-    {
-        str1++;
-    }
-    return str1;
-}
+
 char tokenize(char ** ps, char * es, char ** q, char ** eq)
 {
     char * temp;
     char ret;
 
     temp = *ps;
-    temp = skip_whitespace(temp, es);
+    while(temp < es && strchr(whitespace, *temp))
+    {
+        temp++;
+    }
     if(q != NULL)
     {
         *q = temp;
     }
     ret = *temp;
-    if(*temp != 0)
+    switch(*temp)
     {
-        if(*temp == '|' || *temp == '<' || *temp == '>')
-        {
-            if(*temp == '>' && *(temp+1) == '>')
+        case 0:
+            break;
+        case '|':
+        case '<':
+        case '>':
+            temp++;
+            if(*temp == '>')
             {
                 ret = '+';
+                temp++;
             }
-        }
-        else
-        {
+            break;
+        default:
             ret = 'a';
-            temp = skip_whitespace_symbols(temp, es);
-        }
+            while(temp < es && !strchr(whitespace, *temp) && !strchr(special_symbols, *temp))
+                temp++;
+            break;
     }
     if(eq != NULL)
         *eq = temp;
-    temp = skip_whitespace(temp, es);
-
+    while(temp < es && strchr(whitespace, *temp))
+        temp++;
     *ps = temp;
     return ret;
 }
@@ -89,7 +82,8 @@ int scan(char ** ps, char * es, char * tokens)
 {
     char * temp;
     temp = * ps;
-    temp = skip_whitespace(temp, es);
+    while(temp < es && strchr(whitespace, *temp))
+        temp++;
     *ps = temp;
     return *temp && strchr(tokens, *temp);
 }
@@ -133,22 +127,17 @@ struct basic_command * parse_redirect_command(struct basic_command * command, ch
             fprintf(stderr , "Missing file for redirection");
             exit(EXIT_FAILURE);
         }
-        if(tokens == '<')
+        switch(tokens)
         {
-            command = set_redirect_command(command, q, eq, O_RDONLY, 0);
-        }
-        else if(tokens == '>')
-        {
-            command = set_redirect_command(command, q, eq, O_WRONLY|O_CREAT|O_TRUNC, 1);
-        }
-        else if(tokens == '+')
-        {
-            command = set_redirect_command(command, q, eq, O_WRONLY|O_CREAT|O_APPEND ,1);
-        }
-        else
-        {
-            fprintf(stderr, "Error parsing redirect command\n");
-            exit(EXIT_FAILURE);
+            case '<':
+                command = set_redirect_command(command, q, eq, O_RDONLY, 0);
+                break;
+            case '>':
+                command = set_redirect_command(command, q, eq, O_WRONLY|O_CREAT|O_TRUNC, 1);
+                break;
+            case '+':
+                command = set_redirect_command(command, q, eq, O_WRONLY|O_CREAT|O_APPEND ,1);
+                break;
         }
     }
     return command;
