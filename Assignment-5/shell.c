@@ -1,23 +1,31 @@
 #include "shell.h"
+// Signal handler to handle SIGINT inside child processes
 void child_sigint_handler(int sig)
 {
     exit(EXIT_SUCCESS);
 }
+// Signal handler to handle SIGINT inside parent processes
 void parent_sigint_handler(int sig)
 {
     // Do nothing in parent process, print newline for better formatting
     printf("?\n");
     
 }
+// Prompts the user for command and returns a status indicating the shell to exit or not. Also takes a FILE * for reading commands directly from scripts.
 int get_command(char * buf, FILE * stream)
 {
     bzero(buf, MAXINPUT);
     fprintf(stdout, "%s ", "?");
+    if(feof(stream))
+    {
+        return -1;
+    }
     fgets(buf, MAXINPUT, stream);
     if(!(*buf))
         return -1;
     return 0;
 }
+// Custom fork that checks the return value of fork everytime and returns child pid to parent process.
 int custom_fork()
 {
     int ret = fork();
@@ -28,6 +36,7 @@ int custom_fork()
     }
     return ret;
 }
+// Main function that takes a parsed command and runs it accordingly. PATH enviornment variable is set here.
 void run(struct basic_command * command)
 {
     int pipe_des[2];
@@ -100,10 +109,17 @@ void run(struct basic_command * command)
     }
     exit(EXIT_SUCCESS);
 }
+// checks if the given command is a cd command.
 int is_cd(char * command)
 {
     return command[0] == 'c' && command[1] == 'd' && command[2] == ' ';
 }
+// checks if the given command is an exit command.
+int is_exit(char * command)
+{
+    return command[0] == 'e' && command[1] == 'x' && command[2] == 'i' && command[3] == 't';
+}
+// changes the directory in the parent process and prints out the current working directory as well as previous working directory.
 void change_directory(char * dir, char * cwd)
 {
     if(chdir(dir) < 0)
@@ -119,15 +135,31 @@ void change_directory(char * dir, char * cwd)
         printf("Current  Working Directory: %s\n", dir);
     }
 }
-void shell(FILE * stream)
+// main function that reads commands and executes them.
+int shell(FILE * stream)
 {
     static char command[MAXINPUT];
     char dwd[1024];
     sprintf(dwd, "DWD=/home/%s", getlogin());
     putenv(dwd);
     signal(SIGINT, &parent_sigint_handler);
+	int status;
+    int exit_code = 0;
     while(get_command(command, stream) >=0)
     {
+        if(is_exit(command))
+        {
+            command[strlen(command)-1] = 0;
+            if(strcmp(command+4, "\0") == 0)
+            {
+                exit(exit_code);
+            }
+            else
+            {
+                int exc = atoi(command+4);
+                exit(exc);
+            }
+        }
         if(is_cd(command))
         {
             command[strlen(command)-1] = 0;
@@ -146,6 +178,16 @@ void shell(FILE * stream)
                 {
                     change_directory(getenv("DWD"), cwd);
                 }
+				else if(strcmp(command+3, "-c") == 0)
+				{
+					if(custom_fork() == 0)
+					{
+						sprintf(command, "pwd");
+						struct basic_command * printworkingdir = Parse(command);
+						run(printworkingdir);
+					}
+					wait(NULL);
+				}
                 else
                 {
                     change_directory(command+3, cwd);
@@ -155,13 +197,18 @@ void shell(FILE * stream)
         }
     
         struct basic_command * ret = Parse(command);
-        if(custom_fork() == 0)
+        pid_t pid;
+        if((pid = custom_fork()) == 0)
         {
             signal(SIGINT, &child_sigint_handler);
             run(ret);
         }
-
-        wait(NULL);
+        waitpid(pid, &status, 0);
+        if(WIFEXITED(status))
+        {
+            exit_code = WEXITSTATUS(status);   
+        }
+		
     }
-    exit(EXIT_SUCCESS);
+    exit(exit_code);
 }

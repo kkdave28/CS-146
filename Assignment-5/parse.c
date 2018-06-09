@@ -1,5 +1,5 @@
 #include "parse.h"
-
+// Creates the execute command struct and zeros out its fields. It returns a typecasted basic_command struct pointer
 struct basic_command * set_execute_command()
 {
     struct execute_command * command;
@@ -9,6 +9,7 @@ struct basic_command * set_execute_command()
     struct basic_command * ret = (struct basic_command*)(command);
     return ret;
 }
+// Creates the redirect command struct and zeros out its fields. It returns a typecasted basic_command struct pointer
 struct basic_command * set_redirect_command(struct basic_command * command, char * filename, char * enviornment_file, long int mode, long int file_des)
 {
     struct redirect_command * another_command;
@@ -24,6 +25,7 @@ struct basic_command * set_redirect_command(struct basic_command * command, char
     struct basic_command * ret = (struct basic_command *)(another_command);
     return ret;
 }
+// Creates the piped command struct and zeros out its fields. It returns a typecasted basic_command struct pointer
 struct basic_command * set_piped_command(struct basic_command * left, struct basic_command * right)
 {
     struct piped_command * command;
@@ -35,6 +37,7 @@ struct basic_command * set_piped_command(struct basic_command * left, struct bas
     struct basic_command * ret = (struct basic_command*)(command);
     return ret;
 }
+// skips whitespace untill it finds a non whitespace or reaches the end of the string.
 char * skip_whitespace(char * str1, char * str2)
 {
     while(str1 < str2 && strchr(whitespace, *str1))
@@ -43,6 +46,7 @@ char * skip_whitespace(char * str1, char * str2)
     }
     return str1;
 }
+// skips whitespace and shell symbols untill it finds a non whitespace and symbol or reaches the end of the string.
 char * skip_whitespace_symbols(char * str1, char * str2)
 {
     while(str1 < str2 && !strchr(whitespace, *str1) && !strchr(special_symbols, *str1))
@@ -51,6 +55,7 @@ char * skip_whitespace_symbols(char * str1, char * str2)
     }
     return str1;
 }
+// separate commands from shell symbols, white spaces into individual, tokenized commands.
 char tokenize(char ** unparsed_command, char * final_parsed_command, char ** pased_tokens, char ** set_tokens)
 {
     char * temp;
@@ -91,6 +96,7 @@ char tokenize(char ** unparsed_command, char * final_parsed_command, char ** pas
     *unparsed_command = temp;
     return ret;
 }
+// scans for a particular token in the parsed command and returns whether the string contained those tokens or not.
 int scan(char ** unparsed_command, char * final_parsed_command, char * tokens)
 {
     char * temp;
@@ -99,6 +105,7 @@ int scan(char ** unparsed_command, char * final_parsed_command, char * tokens)
     *unparsed_command = temp;
     return *temp && strchr(tokens, *temp);
 }
+// Main function that starts parsing the command and returns a fully parsed command.
 struct basic_command * parse_command(char * command)
 {
     char * temp;
@@ -115,6 +122,7 @@ struct basic_command * parse_command(char * command)
     validate_command(ret);
     return ret;
 }
+// Function that parses piped commands and the sub commands under it.
 struct basic_command * parse_piped_command(char **unparsed_command, char * final_parsed_command)
 {
     struct basic_command * ret;
@@ -126,6 +134,7 @@ struct basic_command * parse_piped_command(char **unparsed_command, char * final
     }
     return ret;
 }
+// Function that parses and check the validity of redirect command if there are any.
 struct basic_command * parse_redirect_command(struct basic_command * command, char ** unparsed_command, char * final_parsed_command)
 {
     char tokens;
@@ -159,6 +168,7 @@ struct basic_command * parse_redirect_command(struct basic_command * command, ch
     }
     return command;
 }
+// Function that takes a char ** of tokens and then arranges them in a legible command format.
 struct basic_command * parse_exec_command( char ** unparsed_command, char * final_parsed_command)
 {
     char * pased_tokens;
@@ -197,6 +207,7 @@ struct basic_command * parse_exec_command( char ** unparsed_command, char * fina
     command->enviornment_vars[num_args] = 0;
     return ret;
 }
+// Function that adds null-terminators and sets any field to zero if it is unset.
 struct basic_command * validate_command(struct basic_command * command)
 {
     int i;
@@ -230,6 +241,7 @@ struct basic_command * validate_command(struct basic_command * command)
     return command;
 
 }
+// Driver for shell;
 struct basic_command * Parse(char * command)
 {
     return parse_command(command);   

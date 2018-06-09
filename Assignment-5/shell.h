@@ -5,7 +5,7 @@
 
 extern int execvpe(const char *file, char *const argv[], char *const envp[]);
 extern int putenv(char * );
-void shell(FILE *);
+int shell(FILE *);
 void child_sigint_handler(int);
 void parent_sigint_handler(int);
 void run(struct basic_command *);
