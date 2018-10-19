@@ -247,6 +247,7 @@ void process_dir(char * dir_path)
         file_list[file_count++] = entry;
     }
     sprintf(directory_name, "%s", dir_path);
+    // Given that the sort is stable, otherwise the ordering of sort makes no difference.
     qsort(file_list, file_count, sizeof(*file_list), sort_by_name);
     qsort(file_list, file_count, sizeof(*file_list), sort_by_size);
     int j;
